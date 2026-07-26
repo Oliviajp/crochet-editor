@@ -1,14 +1,14 @@
 export type Yarn = {
-    id: string
+  id: string;
 
-    brand: string
-    name: string
+  brand: string;
+  name: string;
 
-    weightId: string
-    materialIds: string[]
+  weightId: string;
+  materialIds: string[];
 
-    color: string
+  color: string;
 
-    grams: number
-    lengthMeters: number
-}
+  grams: number;
+  lengthMeters: number;
+};

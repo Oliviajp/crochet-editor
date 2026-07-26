@@ -1,11 +1,11 @@
 export type YarnWeight = {
-  id: string
-  name: string
-  standardWeight: number
+  id: string;
+  name: string;
+  standardWeight: number;
 
-  ply: string
-  wrapsPerInch: string
-  gauge10cm: string
+  ply: string;
+  wrapsPerInch: string;
+  gauge10cm: string;
 
-  recommendedHooks: number[]
-}
+  recommendedHooks: number[];
+};

@@ -1,4 +1,4 @@
-import type { YarnMaterial } from "../types/YarnMaterial"
+import type { YarnMaterial } from "../types/YarnMaterial";
 
 export const YarnMaterials: readonly YarnMaterial[] = [
   {
@@ -14,7 +14,7 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: false,
     durable: true,
 
-    machineWashable: true
+    machineWashable: true,
   },
 
   {
@@ -30,7 +30,7 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: true,
     durable: true,
 
-    machineWashable: false
+    machineWashable: false,
   },
 
   {
@@ -46,7 +46,7 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: true,
     durable: true,
 
-    machineWashable: true
+    machineWashable: true,
   },
 
   {
@@ -60,9 +60,9 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     warm: true,
     breathable: true,
     stretchy: false,
-    durable:true,
+    durable: true,
 
-    machineWashable: false
+    machineWashable: false,
   },
 
   {
@@ -78,7 +78,7 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: false,
     durable: false,
 
-    machineWashable: false
+    machineWashable: false,
   },
 
   {
@@ -94,7 +94,7 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: false,
     durable: true,
 
-    machineWashable: false
+    machineWashable: false,
   },
 
   {
@@ -110,7 +110,7 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: false,
     durable: true,
 
-    machineWashable: true
+    machineWashable: true,
   },
 
   {
@@ -126,7 +126,7 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: false,
     durable: true,
 
-    machineWashable: true
+    machineWashable: true,
   },
 
   {
@@ -142,7 +142,7 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: true,
     durable: true,
 
-    machineWashable: true
+    machineWashable: true,
   },
 
   {
@@ -158,7 +158,7 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: true,
     durable: true,
 
-    machineWashable: true
+    machineWashable: true,
   },
 
   {
@@ -174,7 +174,7 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: false,
     durable: false,
 
-    machineWashable: false
+    machineWashable: false,
   },
 
   {
@@ -190,6 +190,6 @@ export const YarnMaterials: readonly YarnMaterial[] = [
     stretchy: false,
     durable: true,
 
-    machineWashable: true
-  }
-]
+    machineWashable: true,
+  },
+];

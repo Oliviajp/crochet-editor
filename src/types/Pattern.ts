@@ -1,14 +1,14 @@
-import  type { Stitch } from "./Stitch"
+import type { Stitch } from "./Stitch";
 export type Pattern = {
-  id: string
+  id: number;
 
-  name: string
+  name: string;
 
-  hookSize: number
+  hookSize: number;
 
-  yarnWeightId: string
+  yarnWeightId: string;
 
-  yarnMaterialIds: string[]
+  yarnMaterialIds: string[];
 
-  stitches: Stitch[]
-}
+  stitches: Stitch[];
+};

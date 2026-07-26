@@ -1,4 +1,4 @@
-import "./FileExplorer.css"
+import "./FileExplorer.css";
 export default function FileExplorer() {
   return (
     <div className="file-explorer">

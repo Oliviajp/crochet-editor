@@ -9,7 +9,6 @@ import FileExplorer from "./components/FileExplorer/FileExplorer";
 import { useState } from "react";
 
 export default function App() {
-
   // ===== State =====
   const [selectedTool, setSelectedTool] = useState("Select stitch");
   const [selectedStitch, setSelectedStitch] = useState<number | null>(null);
@@ -17,7 +16,6 @@ export default function App() {
   return (
     <div className="app">
       <Header />
-      
 
       <main className="main">
         <FileExplorer />
@@ -25,11 +23,10 @@ export default function App() {
         <Toolbar
           selectedTool={selectedTool}
           setSelectedTool={setSelectedTool}
-      />
-        
+        />
       </main>
-        <Properties />
-        <State />
+      <Properties />
+      <State />
       <p>Selected Tool: {selectedTool}</p>
     </div>
   );
