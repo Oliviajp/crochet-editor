@@ -1,0 +1,6 @@
+.file-explorer {
+    flex: 0 0 200px;
+    height: 100%;
+    border: 1px solid black;
+    box-sizing: border-box;
+}

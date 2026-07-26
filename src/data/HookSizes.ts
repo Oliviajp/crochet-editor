@@ -1,0 +1,28 @@
+import type { HookSize } from "../types/HookSize"
+
+export const HookSizes: readonly HookSize[] = [
+  { id: "2",    metric: 2.00, us: null,    uk: "14", japan: "2/0" },
+  { id: "2.25", metric: 2.25, us: "B/1",   uk: "13", japan: "3/0" },
+  { id: "2.5",  metric: 2.50, us: null,    uk: "12", japan: "4/0" },
+  { id: "2.75", metric: 2.75, us: "C",     uk: "11", japan: null },
+  { id: "3",    metric: 3.00, us: null,    uk: "11", japan: "5/0" },
+  { id: "3.25", metric: 3.25, us: "D",     uk: "10", japan: null },
+  { id: "3.5",  metric: 3.50, us: "E/4",   uk: "9",  japan: "6/0" },
+  { id: "3.75", metric: 3.75, us: "F",     uk: null, japan: null },
+  { id: "4",    metric: 4.00, us: "G/6",   uk: "8",  japan: "7/0" },
+  { id: "4.25", metric: 4.25, us: "G/6",   uk: null, japan: null },
+  { id: "4.5",  metric: 4.50, us: "7",     uk: "7",  japan: "7.5/0" },
+  { id: "5",    metric: 5.00, us: "H/8",   uk: "6",  japan: "8/0" },
+  { id: "5.25", metric: 5.25, us: "I",     uk: null, japan: null },
+  { id: "5.5",  metric: 5.50, us: "I/9",   uk: "5",  japan: "9/0" },
+  { id: "6",    metric: 6.00, us: "J/10",  uk: "4",  japan: "10/0" },
+  { id: "6.5",  metric: 6.50, us: "K",     uk: "3",  japan: null },
+  { id: "7",    metric: 7.00, us: null,    uk: "2",  japan: null },
+  { id: "8",    metric: 8.00, us: null,    uk: "0",  japan: null },
+  { id: "9",    metric: 9.00, us: "M/13",  uk: null, japan: null },
+  { id: "10",   metric: 10.00, us: "N/15", uk: null, japan: null },
+  { id: "12",   metric: 12.00, us: "P/16", uk: null, japan: null },
+  { id: "15",   metric: 15.00, us: "Q",    uk: null, japan: null },
+  { id: "16",   metric: 16.00, us: "Q",    uk: null, japan: null },
+  { id: "19",   metric: 19.00, us: "S",    uk: null, japan: null },
+]
