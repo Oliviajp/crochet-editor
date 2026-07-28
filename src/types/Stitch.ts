@@ -1,7 +1,20 @@
-//everything about a stitch, including its type, loop type, position, and connections to other stitches
-export type StitchType = "slst" | "ch" | "sc" | "hdc" | "dc" | "tr";
+// Stitch definitions for crochet patterns
 
-export type LoopType = "both" | "front" | "back";
+export type StitchType =
+  | "ch"
+  | "slst"
+  | "sc"
+  | "hdc"
+  | "dc"
+  | "tr"
+  | "puff"
+  | "bobble"
+  | "popcorn";
+
+export type LoopType =
+  | "both"
+  | "front"
+  | "back";
 
 export type Stitch = {
   id: string;
