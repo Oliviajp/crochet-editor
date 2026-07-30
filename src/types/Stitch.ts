@@ -17,10 +17,9 @@ export type LoopType =
   | "back";
 
 export type Stitch = {
-  id: string;
-  type: StitchType;
-  loop: LoopType;
-  x: number;
-  y: number;
-  connections: string[];
+    id: number;
+    type: StitchType;
+    parentId: number | null;
+    workedInto: "front" | "back" | "both";
+    row: number;
 };

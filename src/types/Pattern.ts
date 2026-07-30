@@ -11,4 +11,6 @@ export type Pattern = {
   yarnMaterialIds: string[];
 
   stitches: Stitch[];
+
+  Children: Pattern[];
 };
