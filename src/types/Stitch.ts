@@ -16,10 +16,10 @@ export type LoopType =
   | "front"
   | "back";
 
-export type Stitch = {
+export interface Stitch {
     id: number;
     type: StitchType;
     parentId: number | null;
-    workedInto: "front" | "back" | "both";
+    workedInto: LoopType;
     row: number;
-};
+}
