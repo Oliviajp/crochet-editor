@@ -21,5 +21,4 @@ export type Stitch = {
     type: StitchType;
     parentId: number | null;
     workedInto: "front" | "back" | "both";
-    row: number;
 };

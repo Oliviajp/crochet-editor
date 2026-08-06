@@ -1,4 +1,4 @@
-import type { Stitch } from "./Stitch";
+import type { Row } from "./Row";
 export type Pattern = {
   id: number;
 
@@ -10,7 +10,7 @@ export type Pattern = {
 
   yarnMaterialIds: string[];
 
-  stitches: Stitch[];
+  rows: Row[];
 
   Children: Pattern[];
 };

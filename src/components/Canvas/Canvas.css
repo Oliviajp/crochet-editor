@@ -1,4 +1,41 @@
 .canvas {
   flex: 1;
-  border: 1px solid black;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  background-color: #fafafa;
+  background-image: radial-gradient(circle, #e4e4e7 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.canvas-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-row-label {
+  fill: #71717a;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.canvas-empty {
+  fill: #a1a1aa;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.canvas-stitch {
+  color: #0f766e;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.canvas-stitch:hover {
+  color: #f59e0b;
 }

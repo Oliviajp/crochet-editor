@@ -7,7 +7,6 @@ let nextId = 1;
  */
 export function createStitch(
   type: StitchType,
-  row: number,
   parentId: number | null = null,
   workedInto: LoopType = "both"
 ): Stitch {
@@ -16,7 +15,6 @@ export function createStitch(
     type,
     parentId,
     workedInto,
-    row,
   };
 }
 
@@ -32,6 +30,7 @@ export function addStitch(
 
 /**
  * Update an existing stitch.
+ * map over the stitches and replace the one with the same id as the updated stitch.
  */
 export function updateStitch(
   stitches: Stitch[],
@@ -44,9 +43,10 @@ export function updateStitch(
 
 /**
  * Delete a stitch.
+ * filter out the stitch with the given id from the stitches array.
  */
 export function deleteStitch(
-  stitches: Stitch[],
+  stitches: Stitch[], 
   id: number
 ): Stitch[] {
   return stitches.filter((s) => s.id !== id);
