@@ -1,0 +1,15 @@
+.simple-view {
+  width: 1000px;
+}
+
+.simple-row {
+  font-size: 30px;
+}
+
+.simple-row-label {
+  font-weight: bold;
+}
+
+.simple-empty {
+  font-size: 30px;
+}

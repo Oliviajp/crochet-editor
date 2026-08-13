@@ -29,6 +29,16 @@ export function addStitch(
 }
 
 /**
+ * Add multiple stitches to a pattern.
+ */
+export function addStitches(
+  stitches: Stitch[],
+  stitchesToAdd: Stitch[]
+): Stitch[] {
+  return [...stitches, ...stitchesToAdd];
+}
+
+/**
  * Update an existing stitch.
  * map over the stitches and replace the one with the same id as the updated stitch.
  */
