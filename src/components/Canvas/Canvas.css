@@ -76,6 +76,14 @@
   justify-content: center;
   transform-origin: center center;
   transition: transform 0.15s ease;
+  cursor: grab;
+  touch-action: none;
+}
+
+.canvas-zoom-wrap.panning {
+  cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .canvas-svg {
