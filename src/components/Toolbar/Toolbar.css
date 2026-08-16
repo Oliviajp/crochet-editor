@@ -51,3 +51,31 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+.toolbar-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toolbar-count {
+  flex: 0 0 60px;
+  padding: 8px 6px;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  color: #3f3f46;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.toolbar-count:focus {
+  outline: none;
+  border-color: #0f766e;
+}
+
+.toolbar-add-button {
+  flex: 1;
+}

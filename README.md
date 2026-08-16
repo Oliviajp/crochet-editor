@@ -83,7 +83,8 @@ npm run lint
 
 1. The app opens with an empty pattern and the **SC** tool selected.
 2. Pick a stitch tool from the **Stitches** section of the toolbar.
-3. Click **Add Stitch** to append that stitch to the current round.
+3. Click **Add Stitch** to append that stitch to the current round. Use the
+   number box next to it to add several at once (defaults to 1).
 4. Click **New Row** to start the next round (auto-labeled `Round N`).
 5. Switch between **Simple** and **Chart** views in the canvas toolbar, and use
    the **− / +** buttons to zoom.

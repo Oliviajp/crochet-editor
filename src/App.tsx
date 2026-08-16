@@ -10,7 +10,7 @@ import State from "./components/State/State";
 import Toolbar from "./components/Toolbar/Toolbar";
 import { createPattern } from "./Logic/Pattern/PatternCrud";
 import { addRow, createRow, updateRow } from "./Logic/Row/RowCrud";
-import { addStitch, createStitch } from "./Logic/Stitch/StitchCrud";
+import { addStitches, createStitch } from "./Logic/Stitch/StitchCrud";
 import type { Pattern } from "./types/Pattern";
 import type { Row } from "./types/Row";
 import type { StitchType } from "./types/Stitch";
@@ -21,22 +21,25 @@ export default function App() {
   const [selectedTool, setSelectedTool] = useState<StitchType>("sc");
 
   /**
-   * Add the selected stitch type to the current (last) row.
+   * Add `count` stitches of the selected type to the current (last) row.
    * If the pattern has no rows yet, start it with "Round 1".
    */
-  function handleAddStitch() {
-    const stitch = createStitch(selectedTool);
+  function handleAddStitch(count: number = 1) {
+    const stitches = Array.from(
+      { length: count },
+      () => createStitch(selectedTool)
+    );
     let rows: Row[];
 
     const lastRow = pattern.rows[pattern.rows.length - 1];
     if (lastRow) {
       const updatedRow: Row = {
         ...lastRow,
-        stitches: addStitch(lastRow.stitches, stitch),
+        stitches: addStitches(lastRow.stitches, stitches),
       };
       rows = updateRow(pattern.rows, updatedRow);
     } else {
-      rows = addRow([], createRow("Round 1", [stitch]));
+      rows = addRow([], createRow("Round 1", stitches));
     }
 
     setPattern({ ...pattern, rows });
