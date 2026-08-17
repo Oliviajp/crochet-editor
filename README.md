@@ -19,7 +19,8 @@ Built with **React 19**, **TypeScript**, and **Vite**.
     (chain = oval, slip stitch = dot, single crochet = ×, double crochet = T
     with a slash, etc.), row labels, native hover tooltips, and rows centered
     relative to the widest row.
-- **Zoom controls** — zoom in/out (25%–400%) and reset, applied to the canvas.
+- **Zoom controls** — zoom in/out (25%–400%) and reset via the toolbar, or
+  **mouse wheel** to zoom toward the cursor, with drag-to-pan to move the camera.
 - **Pure, immutable CRUD logic** — `Pattern`, `Row`, and `Stitch` are created
   and updated through small helper modules in `src/Logic/`, so state updates in
   `App.tsx` stay predictable and testable.
@@ -86,8 +87,9 @@ npm run lint
 3. Click **Add Stitch** to append that stitch to the current round. Use the
    number box next to it to add several at once (defaults to 1).
 4. Click **New Row** to start the next round (auto-labeled `Round N`).
-5. Switch between **Simple** and **Chart** views in the canvas toolbar, and use
-   the **− / +** buttons to zoom.
+5. Switch between **Simple** and **Chart** views in the canvas toolbar. Use the
+   **− / +** buttons or the **mouse wheel** to zoom (the wheel zooms toward the
+   cursor), and drag the canvas to pan around.
 6. The **Select**, **Move**, **Magic Ring**, **Undo**, and **Redo** buttons are
    placeholders for upcoming functionality.
 
