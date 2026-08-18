@@ -13,12 +13,13 @@ import { addRow, createRow, updateRow } from "./Logic/Row/RowCrud";
 import { addStitches, createStitch } from "./Logic/Stitch/StitchCrud";
 import type { Pattern } from "./types/Pattern";
 import type { Row } from "./types/Row";
-import type { StitchType } from "./types/Stitch";
+import type { LoopType, StitchType } from "./types/Stitch";
 
 export default function App() {
   // ===== State =====
   const [pattern, setPattern] = useState<Pattern>(() => createPattern());
   const [selectedTool, setSelectedTool] = useState<StitchType>("sc");
+  const [loopOption, setLoopOption] = useState<LoopType>("both");
 
   /**
    * Add `count` stitches of the selected type to the current (last) row.
@@ -27,7 +28,7 @@ export default function App() {
   function handleAddStitch(count: number = 1) {
     const stitches = Array.from(
       { length: count },
-      () => createStitch(selectedTool)
+      () => createStitch(selectedTool, null, loopOption)
     );
     let rows: Row[];
 
@@ -66,6 +67,8 @@ export default function App() {
         <Toolbar
           selectedTool={selectedTool}
           setSelectedTool={setSelectedTool}
+          loopOption={loopOption}
+          setLoopOption={setLoopOption}
           handleAddStitch={handleAddStitch}
           handleAddRow={handleAddRow}
         />

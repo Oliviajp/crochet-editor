@@ -79,3 +79,14 @@
 .toolbar-add-button {
   flex: 1;
 }
+
+.toolbar-loop {
+  display: flex;
+  gap: 4px;
+}
+
+.toolbar-loop button {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 12px;
+}

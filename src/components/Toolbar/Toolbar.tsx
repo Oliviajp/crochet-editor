@@ -2,7 +2,7 @@ import "./Toolbar.css";
 
 import { useState } from "react";
 
-import type { StitchType } from "../../types/Stitch";
+import type { LoopType, StitchType } from "../../types/Stitch";
 
 const STITCH_TOOLS: { type: StitchType; label: string }[] = [
   { type: "ch", label: "CH" },
@@ -16,15 +16,25 @@ const STITCH_TOOLS: { type: StitchType; label: string }[] = [
 type ToolbarProps = {
   selectedTool: StitchType;
   setSelectedTool: (tool: StitchType) => void;
+  loopOption: LoopType;
+  setLoopOption: (option: LoopType) => void;
   handleAddStitch: (count?: number) => void;
   handleAddRow: () => void;
 };
 
 const MAX_STITCH_COUNT = 999;
 
+const LOOP_OPTIONS: { type: LoopType; label: string; title: string }[] = [
+  { type: "both", label: "Both", title: "Work into both loops" },
+  { type: "front", label: "FLO", title: "Front Loop Only" },
+  { type: "back", label: "BLO", title: "Back Loop Only" },
+];
+
 export default function Toolbar({
   selectedTool,
   setSelectedTool,
+  loopOption,
+  setLoopOption,
   handleAddStitch,
   handleAddRow,
 }: ToolbarProps) {
@@ -64,6 +74,20 @@ export default function Toolbar({
           {tool.label}
         </button>
       ))}
+
+      <span className="toolbar-section-label">Loop</span>
+      <div className="toolbar-loop">
+        {LOOP_OPTIONS.map((opt) => (
+          <button
+            key={opt.type}
+            className={loopOption === opt.type ? "active" : undefined}
+            onClick={() => setLoopOption(opt.type)}
+            title={opt.title}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
 
       <span className="toolbar-section-label">Edit</span>
       <button onClick={handleAddRow}>New Row</button>
