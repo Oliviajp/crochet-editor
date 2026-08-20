@@ -39,7 +39,7 @@ export default function Canvas({ pattern }: CanvasProps) {
   return (
     <div ref={canvasRef} className="canvas">
       <div className="canvas-toolbar">
-        <div className="canvas-view-switcher">
+        <div className="canvas-view-switcher"> 
           <button
             className={view === "simple" ? "active" : undefined}
             onClick={() => setView("simple")}

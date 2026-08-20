@@ -246,7 +246,7 @@ export default function ChartVisualization({ pattern }: ChartVisualizationProps)
                 x={padding}
                 y={rowY + size * 0.7}
               >
-                {row.label}
+                {row.label} ({row.stitches.length})
               </text>
               {row.stitches.map((stitch, stitchIndex) => (
                 <g

@@ -1,3 +1,41 @@
 .properties {
   width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.properties-section {
+  padding: 8px 12px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.properties-label {
+  color: #888;
+}
+
+.properties-footer {
+  margin-top: auto;
+  padding: 12px;
+  font-size: 14px;
+  color: #888;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.properties-fasten-off {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: #c0392b;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+}
+
+.properties-fasten-off:hover {
+  background: #a93226;
 }

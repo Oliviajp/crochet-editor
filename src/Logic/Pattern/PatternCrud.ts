@@ -1,4 +1,4 @@
-import type { Pattern } from "../../types/Pattern";
+import type { Pattern, StartType } from "../../types/Pattern";
 import type { Row } from "../../types/Row";
 
 let nextId = 1;
@@ -8,6 +8,7 @@ let nextId = 1;
  */
 export function createPattern(
   name: string = "Untitled Pattern",
+  startType: StartType = "magic-circle",
   hookSize: number = 0,
   yarnWeightId: string = "",
   yarnMaterialIds: string[] = [],
@@ -16,6 +17,8 @@ export function createPattern(
   return {
     id: nextId++,
     name,
+    startType,
+    finished: false,
     hookSize,
     yarnWeightId,
     yarnMaterialIds,

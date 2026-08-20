@@ -20,6 +20,7 @@ type ToolbarProps = {
   setLoopOption: (option: LoopType) => void;
   handleAddStitch: (count?: number) => void;
   handleAddRow: () => void;
+  finished: boolean;
 };
 
 const MAX_STITCH_COUNT = 999;
@@ -37,6 +38,7 @@ export default function Toolbar({
   setLoopOption,
   handleAddStitch,
   handleAddRow,
+  finished,
 }: ToolbarProps) {
   const [count, setCount] = useState("1");
 
@@ -90,7 +92,9 @@ export default function Toolbar({
       </div>
 
       <span className="toolbar-section-label">Edit</span>
-      <button onClick={handleAddRow}>New Row</button>
+      <button onClick={handleAddRow} disabled={finished}>
+        New Row
+      </button>
       <div className="toolbar-add">
         <input
           type="number"
@@ -107,6 +111,7 @@ export default function Toolbar({
           onClick={addStitches}
           className="toolbar-add-button"
           title="Add the selected stitch that many times"
+          disabled={finished}
         >
           Add Stitch
         </button>
