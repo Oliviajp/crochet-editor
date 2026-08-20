@@ -28,6 +28,7 @@ function clamp(value: number, min: number, max: number): number {
 
 /**
  * How far the content may be panned in each direction.
+ * remember that since it is 2 sides it should have be halved for the overflow
  */
 function getPanBounds(
   canvas: HTMLElement | null,
