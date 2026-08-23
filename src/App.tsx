@@ -11,7 +11,12 @@ import State from "./components/State/State";
 import Toolbar from "./components/Toolbar/Toolbar";
 import { createPattern } from "./Logic/Pattern/PatternCrud";
 import { addRow, createRow, updateRow } from "./Logic/Row/RowCrud";
-import { addStitches, createStitch } from "./Logic/Stitch/StitchCrud";
+import {
+  addStitches,
+  createStitch,
+  setStitchType,
+  setStitchNote,
+} from "./Logic/Stitch/StitchCrud";
 import type { Pattern, StartType } from "./types/Pattern";
 import type { Row } from "./types/Row";
 import type { LoopType, StitchType } from "./types/Stitch";
@@ -24,6 +29,7 @@ export default function App() {
   const [pattern, setPattern] = useState<Pattern>(() => createPattern());
   const [selectedTool, setSelectedTool] = useState<StitchType>("sc");
   const [loopOption, setLoopOption] = useState<LoopType>("both");
+  const [editMode, setEditMode] = useState(false);
 
   /**
    * Add `count` stitches of the selected type to the current (last) row.
@@ -72,6 +78,28 @@ export default function App() {
     setPattern({ ...pattern, finished: true });
   }
 
+  // ===== Stitch editing (from popover) =====
+
+  function handleStitchTypeChange(stitchId: number, newType: StitchType) {
+    setPattern((p) => ({
+      ...p,
+      rows: p.rows.map((row) => ({
+        ...row,
+        stitches: setStitchType(row.stitches, stitchId, newType),
+      })),
+    }));
+  }
+
+  function handleStitchNoteChange(stitchId: number, note: string) {
+    setPattern((p) => ({
+      ...p,
+      rows: p.rows.map((row) => ({
+        ...row,
+        stitches: setStitchNote(row.stitches, stitchId, note),
+      })),
+    }));
+  }
+
   if (view === "home") {
     return (
       <PatternHome
@@ -89,7 +117,12 @@ export default function App() {
 
       <main className="main">
         <FileExplorer />
-        <Canvas pattern={pattern} />
+        <Canvas
+          pattern={pattern}
+          editMode={editMode}
+          onStitchTypeChange={handleStitchTypeChange}
+          onStitchNoteChange={handleStitchNoteChange}
+        />
         <Toolbar
           selectedTool={selectedTool}
           setSelectedTool={setSelectedTool}
@@ -98,6 +131,8 @@ export default function App() {
           handleAddStitch={handleAddStitch}
           handleAddRow={handleAddRow}
           finished={pattern.finished}
+          editMode={editMode}
+          onToggleEditMode={() => setEditMode((e) => !e)}
         />
       </main>
 

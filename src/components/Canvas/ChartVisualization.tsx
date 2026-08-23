@@ -1,7 +1,23 @@
+import { useState } from "react";
+import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
 
 import type { Pattern } from "../../types/Pattern";
 import type { Stitch, StitchType } from "../../types/Stitch";
+
+const STITCH_ABBREVIATIONS: Record<StitchType, string> = {
+  ch: "CH",
+  slst: "SLST",
+  sc: "SC",
+  hdc: "HDC",
+  dc: "DC",
+  tr: "TR",
+  puff: "PUFF",
+  bobble: "BOB",
+  popcorn: "POP",
+};
+
+const STITCH_OPTIONS: StitchType[] = ["ch", "slst", "sc", "hdc", "dc", "tr"];
 
 const STITCH_LABELS: Record<StitchType, string> = {
   ch: "Chain (CH)",
@@ -189,9 +205,23 @@ function stitchGlyph(
 
 type ChartVisualizationProps = {
   pattern: Pattern;
+  editMode: boolean;
+  onStitchTypeChange: (stitchId: number, newType: StitchType) => void;
+  onStitchNoteChange: (stitchId: number, note: string) => void;
 };
 
-export default function ChartVisualization({ pattern }: ChartVisualizationProps) {
+export default function ChartVisualization({
+  pattern,
+  editMode,
+  onStitchTypeChange,
+  onStitchNoteChange,
+}: ChartVisualizationProps) {
+  const [popover, setPopover] = useState<{
+    stitch: Stitch;
+    x: number;
+    y: number;
+  } | null>(null);
+
   const size = 24;
   const stitchSpacing = 46;
   const rowGap = 64;
@@ -215,55 +245,138 @@ export default function ChartVisualization({ pattern }: ChartVisualizationProps)
     minHeight
   );
 
-  return (
-    <svg
-      className="canvas-svg"
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="xMidYMid meet"
-    >
-      {rows.length === 0 ? (
-        <text
-          className="canvas-empty"
-          x={width / 2}
-          y={height / 2}
-          textAnchor="middle"
-        >
-          No stitches yet — pick a stitch, then hit "Add Stitch"
-        </text>
-      ) : (
-        rows.map((row, rowIndex) => {
-          const rowY = padding + rowIndex * rowGap;
-          // Center this row's stitches relative to the widest row.
-          const startX =
-            padding +
-            labelWidth +
-            ((maxStitches - row.stitches.length) * stitchSpacing) / 2;
+  function handleStitchClick(stitch: Stitch, e: React.MouseEvent) {
+    if (!editMode) return;
+    e.stopPropagation();
+    const rect = (e.currentTarget as SVGElement).getBoundingClientRect();
+    setPopover({
+      stitch,
+      x: rect.left + rect.width / 2,
+      y: rect.top,
+    });
+  }
 
-          return (
-            <g key={row.id} className="canvas-row">
-              <text
-                className="canvas-row-label"
-                x={padding}
-                y={rowY + size * 0.7}
-              >
-                {row.label} ({row.stitches.length})
-              </text>
-              {row.stitches.map((stitch, stitchIndex) => (
-                <g
-                  key={stitch.id}
-                  className="canvas-stitch"
-                  transform={`translate(${
-                    startX + stitchIndex * stitchSpacing
-                  } ${rowY})`}
+  function handleTypeChange(newType: StitchType) {
+    if (!popover) return;
+    onStitchTypeChange(popover.stitch.id, newType);
+    setPopover({
+      ...popover,
+      stitch: { ...popover.stitch, type: newType },
+    });
+  }
+
+  function handleNoteChange(note: string) {
+    if (!popover) return;
+    onStitchNoteChange(popover.stitch.id, note);
+    setPopover({
+      ...popover,
+      stitch: { ...popover.stitch, note },
+    });
+  }
+
+  return (
+    <div
+      style={{ width: "100%", height: "100%" }}
+      onClick={() => setPopover(null)}
+    >
+      <svg
+        className="canvas-svg"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {rows.length === 0 ? (
+          <text
+            className="canvas-empty"
+            x={width / 2}
+            y={height / 2}
+            textAnchor="middle"
+          >
+            No stitches yet — pick a stitch, then hit "Add Stitch"
+          </text>
+        ) : (
+          rows.map((row, rowIndex) => {
+            const rowY = padding + rowIndex * rowGap;
+            const startX =
+              padding +
+              labelWidth +
+              ((maxStitches - row.stitches.length) * stitchSpacing) / 2;
+
+            return (
+              <g key={row.id} className="canvas-row">
+                <text
+                  className="canvas-row-label"
+                  x={padding}
+                  y={rowY + size * 0.7}
                 >
-                  <title>{STITCH_LABELS[stitch.type]}</title>
-                  {stitchGlyph(stitch, 0, 0, size)}
-                </g>
-              ))}
-            </g>
-          );
-        })
-      )}
-    </svg>
+                  {row.label} ({row.stitches.length})
+                </text>
+                {row.stitches.map((stitch, stitchIndex) => (
+                  <g
+                    key={stitch.id}
+                    className={`canvas-stitch${popover?.stitch.id === stitch.id ? " selected" : ""}`}
+                    transform={`translate(${startX + stitchIndex * stitchSpacing} ${rowY})`}
+                    onClick={(e) => handleStitchClick(stitch, e)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <title>
+                      {STITCH_LABELS[stitch.type]}
+                      {stitch.note ? ` — ${stitch.note}` : ""}
+                    </title>
+                    {stitchGlyph(stitch, 0, 0, size)}
+                  </g>
+                ))}
+              </g>
+            );
+          })
+        )}
+      </svg>
+
+      {popover &&
+        createPortal(
+          <div
+            className="stitch-popover"
+            style={{
+              position: "fixed",
+              left: popover.x,
+              top: popover.y + 8,
+              transform: "translateX(-50%)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="stitch-popover-row">
+              <span className="stitch-popover-label">Type:</span>
+              <div className="stitch-popover-types">
+                {STITCH_OPTIONS.map((t) => (
+                  <button
+                    key={t}
+                    className={`stitch-popover-btn ${t === popover.stitch.type ? "active" : ""}`}
+                    onClick={() => handleTypeChange(t)}
+                  >
+                    {STITCH_ABBREVIATIONS[t]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="stitch-popover-row">
+              <span className="stitch-popover-label">Note:</span>
+              <input
+                className="stitch-popover-input"
+                type="text"
+                placeholder="e.g. increase, skip..."
+                value={popover.stitch.note}
+                onChange={(e) => handleNoteChange(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <button
+              className="stitch-popover-close"
+              onClick={() => setPopover(null)}
+            >
+              Done
+            </button>
+          </div>,
+          document.body
+        )}
+    </div>
   );
 }

@@ -86,6 +86,11 @@
   -webkit-user-select: none;
 }
 
+.canvas-zoom-wrap.edit-mode {
+  cursor: default;
+  touch-action: auto;
+}
+
 .canvas-svg {
   display: block;
   width: 100%;
@@ -114,6 +119,10 @@
 
 .canvas-stitch:hover {
   color: #f59e0b;
+}
+
+.canvas-stitch.selected {
+  color: #c0392b;
 }
 
 /* Simple text visualization */

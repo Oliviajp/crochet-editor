@@ -3,6 +3,7 @@ import "./Canvas.css";
 import { useLayoutEffect, useState } from "react";
 
 import type { Pattern } from "../../types/Pattern";
+import type { StitchType } from "../../types/Stitch";
 import ChartVisualization from "./ChartVisualization";
 import SimpleVisualization from "./SimpleVisualization";
 import { useZoom, ZOOM_STEP } from "../../hooks/useZoom";
@@ -11,12 +12,15 @@ type VisualizationType = "simple" | "chart";
 
 type CanvasProps = {
   pattern: Pattern;
+  editMode: boolean;
+  onStitchTypeChange: (stitchId: number, newType: StitchType) => void;
+  onStitchNoteChange: (stitchId: number, note: string) => void;
 };
 
 /**
  * How far the content may be panned in each direction.
  */
-export default function Canvas({ pattern }: CanvasProps) {
+export default function Canvas({ pattern, editMode, onStitchTypeChange, onStitchNoteChange }: CanvasProps) {
   const [view, setView] = useState<VisualizationType>("simple");
   const {
     zoom,
@@ -80,20 +84,38 @@ export default function Canvas({ pattern }: CanvasProps) {
 
       <div
         ref={wrapRef}
-        className={panning ? "canvas-zoom-wrap panning" : "canvas-zoom-wrap"}
+        className={
+          editMode
+            ? "canvas-zoom-wrap edit-mode"
+            : panning
+              ? "canvas-zoom-wrap panning"
+              : "canvas-zoom-wrap"
+        }
         style={{
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           transition: panning ? "none" : undefined,
         }}
-        onPointerDown={startPan}
-        onPointerMove={movePan}
-        onPointerUp={endPan}
-        onPointerCancel={endPan}
+        {...(!editMode && {
+          onPointerDown: startPan,
+          onPointerMove: movePan,
+          onPointerUp: endPan,
+          onPointerCancel: endPan,
+        })}
       >
         {view === "simple" ? (
-          <SimpleVisualization pattern={pattern} />
+          <SimpleVisualization
+            pattern={pattern}
+            editMode={editMode}
+            onStitchTypeChange={onStitchTypeChange}
+            onStitchNoteChange={onStitchNoteChange}
+          />
         ) : (
-          <ChartVisualization pattern={pattern} />
+          <ChartVisualization
+            pattern={pattern}
+            editMode={editMode}
+            onStitchTypeChange={onStitchTypeChange}
+            onStitchNoteChange={onStitchNoteChange}
+          />
         )}
       </div>
     </div>

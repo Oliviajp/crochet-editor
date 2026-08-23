@@ -12,6 +12,10 @@ Built with **React 19**, **TypeScript**, and **Vite**.
 - **Interactive pattern editing** — pick a stitch tool (CH, SLST, SC, HDC, DC,
   TR), add stitches to the current round, and append new rows (`Round 1`,
   `Round 2`, ...).
+- **Stitch editing popover** — toggle Edit mode, then click any stitch group
+  to open a popup with type buttons (CH/SLST/SC/HDC/DC/TR) and a note input.
+  Changing the type converts every stitch in the group (e.g. `SC x7` → `HDC x7`).
+  Notes display next to the multiplier as `SC x7 [increase]`.
 - **Two canvas views** with a live switcher:
   - **Simple** — human-readable crochet notation. Repeating groups are
     compressed, e.g. `SC, CH, SC, SC, CH, SC` renders as `(SC, CH, SC) x2`.
@@ -90,7 +94,10 @@ npm run lint
 5. Switch between **Simple** and **Chart** views in the canvas toolbar. Use the
    **− / +** buttons or the **mouse wheel** to zoom (the wheel zooms toward the
    cursor), and drag the canvas to pan around.
-6. The **Select**, **Move**, **Magic Ring**, **Undo**, and **Redo** buttons are
+6. Click **Edit** in the toolbar to enter edit mode. In edit mode, click any
+   stitch group (Simple view) or individual stitch (Chart view) to open the
+   editing popover — change the stitch type or add a note.
+7. The **Select**, **Move**, **Magic Ring**, **Undo**, and **Redo** buttons are
    placeholders for upcoming functionality.
 
 ## Project Structure
@@ -98,32 +105,49 @@ npm run lint
 ```
 src/
 ├── App.tsx                    # Owns the Pattern state; wires everything together
+├── main.tsx                   # Entry point
 ├── components/
 │   ├── Canvas/                # The pattern canvas
 │   │   ├── Canvas.tsx         #   View switcher + zoom wrapper
-│   │   ├── SimpleVisualization.tsx  #   Text notation view (compresses repeats)
-│   │   └── ChartVisualization.tsx   #   SVG crochet chart view
-│   ├── Toolbar/               # Stitch tools, New Row / Add Stitch, history buttons
+│   │   ├── Canvas.css         #   Canvas layout, zoom, edit-mode styles
+│   │   ├── SimpleVisualization.tsx  #   Text notation view (grouped stitches + popover)
+│   │   ├── SimpleVisualization.css  #   Text view + popover styles
+│   │   ├── ChartVisualization.tsx   #   SVG crochet chart view
+│   │   └── ChartVisualization.css   #   Chart-specific styles
+│   ├── Toolbar/               # Stitch tools, New Row / Add Stitch, Edit toggle
+│   │   ├── Toolbar.tsx
+│   │   └── Toolbar.css
 │   ├── Header/                # File / Edit / View / Tools / Help menu bar
-│   ├── FileExplorer/          # Sidebar panel (placeholder)
-│   ├── Properties/            # Properties panel (placeholder)
-│   └── State/                 # State panel (placeholder)
+│   ├── FileExplorer/          # Sidebar panel
+│   ├── Properties/            # Pattern metadata, fasten off
+│   │   ├── Properties.tsx
+│   │   └── Properties.css
+│   ├── Menu/                  # Pattern home / creation screen
+│   └── State/                 # State debug panel
+├── hooks/
+│   └── useZoom.ts             # Zoom + pan logic (ref-based)
 ├── Logic/                     # Pure CRUD / domain logic
 │   ├── Pattern/PatternCrud.ts # create/add/update/delete Pattern
 │   ├── Row/RowCrud.ts         # create/add/update/delete Row
 │   └── Stitch/StitchCrud.ts   # create/add/update/delete Stitch
 ├── types/                     # Domain types
-│   ├── Pattern.ts             # Pattern { id, name, hookSize, yarnWeightId,
-│   │                          #          yarnMaterialIds, rows, Children }
+│   ├── Pattern.ts             # Pattern { id, name, startType, rows, ... }
 │   ├── Row.ts                 # Row { id, label, stitches }
 │   ├── Stitch.ts              # Stitch, StitchType, LoopType
-│   ├── Techniques.ts          # Setup / Starter / Pattern / Finishing techniques
+│   ├── Techniques.ts          # Setup / Starter / Pattern / Finishing type guards
 │   ├── HookSize.ts, Yarn.ts,
 │   ├── YarnMaterial.ts, YarnWeight.ts
-└── data/                      # Static reference data
-    ├── HookSizes.ts           # Metric/US/UK/Japan hook size table
-    ├── YarnWeights.ts         # Standard yarn weight categories
-    └── YarnMaterials.ts       # Fiber properties (warm, breathable, washable...)
+├── data/                      # Static reference data
+│   ├── HookSizes.ts           # Metric/US/UK/Japan hook size table
+│   ├── YarnWeights.ts         # Standard yarn weight categories
+│   └── YarnMaterials.ts       # Fiber properties (warm, breathable, washable...)
+├── geometry/                  # Geometry helpers
+├── graph/                     # Graph data structures
+├── services/                  # Service layer
+├── utils/                     # General utilities
+├── styles/                    # Shared styles
+├── assets/                    # Static assets
+└── WorkSpace/                 # Workspace layout
 ```
 
 ## Data Model
@@ -143,13 +167,13 @@ Stitch
 ├── id
 ├── type: StitchType     # ch | slst | sc | hdc | dc | tr | puff | bobble | popcorn
 ├── parentId             # which stitch this is worked into (null = foundation)
-└── workedInto           # "front" | "back" | "both" (loop worked into)
+├── workedInto           # "front" | "back" | "both" (loop worked into)
+└── note                 # user annotation, displayed as [note]
 ```
 
-The overall pattern lifecycle follows the structure sketched in
-[`docs/Arquite.md`](docs/Arquite.md): **Metadata → Setup (slip knot) → Start
+The overall pattern lifecycle follows: **Metadata → Setup (slip knot) → Start
 (magic ring / chain) → Pattern (rounds) → Finishing (fasten off, weave ends,
-join parts)**.
+join parts)**. See [`docs/flow.md`](docs/flow.md) for details.
 
 ## Documentation
 
@@ -157,9 +181,9 @@ Detailed write-ups live in [`docs/`](docs/):
 
 | Document | Contents |
 | -------- | -------- |
-| [`docs/Arquite.md`](docs/Arquite.md) | High-level structure of a crochet project |
-| [`docs/Canvas.md`](docs/Canvas.md) | How the Canvas component renders the chart, layout constants, and how to extend it |
-| [`docs/SimpleVisualizationExplanation.md`](docs/SimpleVisualizationExplanation.md) | Word-by-word explanation of the Simple (text) view and its repeat-compression logic |
+| [`docs/Explanation.md`](docs/Explanation.md) | Full implementation walkthrough — data model, CRUD logic, state management, components, edit mode, popover, SVG chart, and architecture |
+| [`docs/flow.md`](docs/flow.md) | Application flow documentation |
+| [`docs/ProjectDiagram.md`](docs/ProjectDiagram.md) | Project diagram / architecture overview |
 | [`docs/Daily/`](docs/Daily/) | Daily development notes |
 
 ## Roadmap / Current Status
@@ -169,8 +193,9 @@ canvas modes. Planned and in-progress work:
 
 - **Tools**: Select, Move, and Magic Ring tooling.
 - **History**: Undo / Redo.
-- **Editing**: stitch selection, deletion, and per-stitch properties
-  (e.g. visualizing `workedInto` front/back loops).
+- **Editing**: ✅ stitch editing popover (type change + notes) with group support.
+  Per-stitch properties (e.g. visualizing `workedInto` front/back loops) and
+  deletion are planned.
 - **Metadata**: wire hook size, yarn weight, and yarn material data into the
   UI (Properties panel).
 - **Techniques**: setup (slip knot), starters (magic ring / chain start), and

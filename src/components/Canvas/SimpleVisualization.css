@@ -31,3 +31,128 @@
 .simple-empty {
   font-size: 35px;
 }
+
+.simple-row-text {
+  display: inline;
+}
+
+.simple-group {
+  display: inline;
+}
+
+.simple-group-text {
+  cursor: pointer;
+  padding: 1px 3px;
+  border-radius: 3px;
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.simple-group-text:hover {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.simple-group-text.selected {
+  background-color: #0f766e;
+  color: #fff;
+}
+
+.simple-group-sep {
+  color: #888;
+}
+
+.simple-stitch-note {
+  font-size: 20px;
+  color: #6b7280;
+  font-style: italic;
+  margin-left: 2px;
+}
+
+/* ===== Stitch Popover ===== */
+
+.stitch-popover {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.15);
+  padding: 12px 16px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 300px;
+}
+
+.stitch-popover-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stitch-popover-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #71717a;
+  min-width: 36px;
+}
+
+.stitch-popover-types {
+  display: flex;
+  gap: 4px;
+}
+
+.stitch-popover-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  color: #3f3f46;
+  font-weight: 500;
+}
+
+.stitch-popover-btn:hover {
+  background: #f0fdfa;
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.stitch-popover-btn.active {
+  background: #0f766e;
+  color: #fff;
+  border-color: #0f766e;
+}
+
+.stitch-popover-input {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  outline: none;
+}
+
+.stitch-popover-input:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 1px #0f766e;
+}
+
+.stitch-popover-close {
+  align-self: flex-end;
+  padding: 4px 12px;
+  font-size: 12px;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  color: #71717a;
+}
+
+.stitch-popover-close:hover {
+  background: #f9fafb;
+}

@@ -15,6 +15,7 @@ export function createStitch(
     type,
     parentId,
     workedInto,
+    note: "",
   };
 }
 
@@ -60,4 +61,30 @@ export function deleteStitch(
   id: number
 ): Stitch[] {
   return stitches.filter((s) => s.id !== id);
+}
+
+/**
+ * Change the type of a stitch by id.
+ */
+export function setStitchType(
+  stitches: Stitch[],
+  id: number,
+  newType: StitchType
+): Stitch[] {
+  return stitches.map((s) =>
+    s.id === id ? { ...s, type: newType } : s
+  );
+}
+
+/**
+ * Set the note on a stitch by id.
+ */
+export function setStitchNote(
+  stitches: Stitch[],
+  id: number,
+  note: string
+): Stitch[] {
+  return stitches.map((s) =>
+    s.id === id ? { ...s, note } : s
+  );
 }

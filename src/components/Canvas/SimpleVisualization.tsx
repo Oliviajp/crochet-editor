@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { createPortal } from "react-dom";
 import type { Pattern } from "../../types/Pattern";
 import type { Stitch, StitchType } from "../../types/Stitch";
 import "./SimpleVisualization.css";
@@ -14,91 +16,50 @@ const STITCH_ABBREVIATIONS: Record<StitchType, string> = {
   popcorn: "POP",
 };
 
-function sameStitch(a: Stitch, b: Stitch): boolean {
-  return a.type === b.type;
-}
+const STITCH_OPTIONS: StitchType[] = ["ch", "slst", "sc", "hdc", "dc", "tr"];
 
-/** Count how many consecutive repeats of `unit` start at `start`. */
-function repeatCount(
-  stitches: Stitch[],
-  start: number,
-  unit: Stitch[]
-): number {
-  const n = stitches.length;
-  let count = 1;
-  while (
-    start + unit.length * (count + 1) <= n &&
-    unit.every((stitch, k) => sameStitch(stitch, stitches[start + unit.length * count + k]))
-  ) {
-    count++;
+/** A run of consecutive same-type stitches. */
+type StitchGroup = {
+  type: StitchType;
+  count: number;
+  note: string;
+  /** IDs of all stitches in this group (for bulk updates). */
+  ids: number[];
+};
+
+function buildGroups(stitches: Stitch[]): StitchGroup[] {
+  const groups: StitchGroup[] = [];
+  for (const s of stitches) {
+    const last = groups[groups.length - 1];
+    if (last && last.type === s.type) {
+      last.count++;
+      last.ids.push(s.id);
+    } else {
+      groups.push({ type: s.type, count: 1, note: s.note, ids: [s.id] });
+    }
   }
-  return count;
+  return groups;
 }
 
-/**
- * Compress a row of stitches into crochet-style notation using a 3-step algorithm:
- *
- * Step 1 — Find the longest repeated group from the current position.
- *   e.g. SC SC SC HDC DC SC SC SC HDC DC → [SC SC SC HDC DC] x2
- *
- * Step 2 — Recursively compress the contents of that group.
- *   e.g. SC SC SC HDC DC → SC x3, HDC, DC
- *
- * Step 3 — Apply the outer repetition.
- *   e.g. (SC x3, HDC, DC) x2
- */
+/** Render the non-edit grouped text. */
 function formatStitches(stitches: Stitch[]): string {
-  if (stitches.length === 0) return "";
-
-  // Step 1: Find the longest repeating unit starting at position 0.
-  let bestLen = 0;
-  let bestCount = 0;
-
-  for (let len = 1; len <= Math.floor(stitches.length / 2); len++) {
-    const unit = stitches.slice(0, len);
-    const count = repeatCount(stitches, 0, unit);
-    if (count > 1 && len > bestLen) {
-      // Skip homogeneous multi-stitch units — they are just runs, not groups.
-      if (len > 1 && unit.every((s) => s.type === unit[0].type)) continue;
-      bestLen = len;
-      bestCount = count;
-    }
-  }
-
-  if (bestLen > 0) {
-    // Decompose the unit into its fundamental period to avoid nesting.
-    // e.g. bestLen=4 unit=[SC,DC,SC,DC] → periodLen=2 [SC,DC], periodCount=2
-    let periodLen = bestLen;
-    for (let len = 1; len < bestLen; len++) {
-      if (bestLen % len !== 0) continue;
-      const isPeriod = stitches
-        .slice(0, bestLen)
-        .every((s, i) => sameStitch(s, stitches[i % len]));
-      if (isPeriod) {
-        periodLen = len;
-        break;
-      }
-    }
-    const periodCount = bestLen / periodLen; // times the period fits inside the unit
-    const totalRepeats = bestCount * periodCount;
-
-    const period = stitches.slice(0, periodLen);
-    const compressed = formatStitches(period);
-    const unitText = periodLen === 1 ? compressed : `(${compressed})`;
-    const remaining = stitches.slice(periodLen * totalRepeats);
-    const remainingText =
-      remaining.length > 0 ? ", " + formatStitches(remaining) : "";
-    return `${unitText} x${totalRepeats}${remainingText}`;
-  }
-
-  // No repetition — output this stitch and continue with the rest.
-  const first = STITCH_ABBREVIATIONS[stitches[0].type];
-  if (stitches.length === 1) return first;
-  return first + ", " + formatStitches(stitches.slice(1));
+  const groups = buildGroups(stitches);
+  return groups
+    .map((g) => {
+      const base =
+        g.count > 1
+          ? `${STITCH_ABBREVIATIONS[g.type]} x${g.count}`
+          : STITCH_ABBREVIATIONS[g.type];
+      return g.note ? `${base} [${g.note}]` : base;
+    })
+    .join(", ");
 }
 
 type SimpleVisualizationProps = {
   pattern: Pattern;
+  editMode: boolean;
+  onStitchTypeChange: (stitchId: number, newType: StitchType) => void;
+  onStitchNoteChange: (stitchId: number, note: string) => void;
 };
 
 const START_LABELS: Record<Pattern["startType"], string> = {
@@ -106,7 +67,48 @@ const START_LABELS: Record<Pattern["startType"], string> = {
   "slip-knot": "Slip Knot",
 };
 
-export default function SimpleVisualization({ pattern }: SimpleVisualizationProps) {
+export default function SimpleVisualization({
+  pattern,
+  editMode,
+  onStitchTypeChange,
+  onStitchNoteChange,
+}: SimpleVisualizationProps) {
+  const [popover, setPopover] = useState<{
+    group: StitchGroup;
+    anchor: HTMLSpanElement;
+  } | null>(null);
+
+  function handleGroupClick(group: StitchGroup, el: HTMLSpanElement) {
+    if (!editMode) return;
+    if (popover && popover.group.type === group.type && popover.group.ids[0] === group.ids[0]) {
+      setPopover(null);
+    } else {
+      setPopover({ group, anchor: el });
+    }
+  }
+
+  function handleTypeChange(newType: StitchType) {
+    if (!popover) return;
+    // Change every stitch in the group
+    for (const id of popover.group.ids) {
+      onStitchTypeChange(id, newType);
+    }
+    setPopover({
+      ...popover,
+      group: { ...popover.group, type: newType },
+    });
+  }
+
+  function handleNoteChange(note: string) {
+    if (!popover) return;
+    // Store note on the first stitch of the group
+    onStitchNoteChange(popover.group.ids[0], note);
+    setPopover({
+      ...popover,
+      group: { ...popover.group, note },
+    });
+  }
+
   if (pattern.rows.length === 0) {
     return (
       <p className="simple-empty">
@@ -116,24 +118,99 @@ export default function SimpleVisualization({ pattern }: SimpleVisualizationProp
   }
 
   return (
-    <div className="simple-view">
+    <div className="simple-view" onClick={() => editMode && setPopover(null)}>
       <p className="simple-row simple-start">
         Start: {START_LABELS[pattern.startType]}
       </p>
-      {pattern.rows.map((row) => (
-        <p key={row.id} className="simple-row">
-          <span className="simple-row-label">{row.label}:</span>{" "}
-          <span className="simple-row-text">
-            {formatStitches(row.stitches)}
-          </span>
-          <span className="simple-row-count">({row.stitches.length})</span>
-        </p>
-      ))}
+      {pattern.rows.map((row) => {
+        const groups = buildGroups(row.stitches);
+        return (
+          <p key={row.id} className="simple-row">
+            <span className="simple-row-label">{row.label}:</span>{" "}
+            <span className="simple-row-text">
+              {groups.map((g, i) => {
+                const text =
+                  g.count > 1
+                    ? `${STITCH_ABBREVIATIONS[g.type]} x${g.count}`
+                    : STITCH_ABBREVIATIONS[g.type];
+                const isHighlighted =
+                  popover &&
+                  popover.group.type === g.type &&
+                  popover.group.ids[0] === g.ids[0];
+
+                return (
+                  <span key={g.ids[0]} className="simple-group">
+                    {i > 0 && <span className="simple-group-sep">{", "}</span>}
+                    {editMode ? (
+                      <span
+                        className={`simple-group-text ${isHighlighted ? "selected" : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleGroupClick(g, e.currentTarget);
+                        }}
+                      >
+                        {text}
+                      </span>
+                    ) : (
+                      <span>{text}</span>
+                    )}
+                    {g.note && (
+                      <span className="simple-stitch-note"> [{g.note}]</span>
+                    )}
+                  </span>
+                );
+              })}
+            </span>
+            <span className="simple-row-count">
+              ({row.stitches.length})
+            </span>
+          </p>
+        );
+      })}
       {pattern.finished && (
-        <p className="simple-row simple-finish">
-          Fasten Off
-        </p>
+        <p className="simple-row simple-finish">Fasten Off</p>
       )}
+
+      {popover &&
+        createPortal(
+          <div
+            className="stitch-popover"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="stitch-popover-row">
+              <span className="stitch-popover-label">Type:</span>
+              <div className="stitch-popover-types">
+                {STITCH_OPTIONS.map((t) => (
+                  <button
+                    key={t}
+                    className={`stitch-popover-btn ${t === popover.group.type ? "active" : ""}`}
+                    onClick={() => handleTypeChange(t)}
+                  >
+                    {STITCH_ABBREVIATIONS[t]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="stitch-popover-row">
+              <span className="stitch-popover-label">Note:</span>
+              <input
+                className="stitch-popover-input"
+                type="text"
+                placeholder="e.g. increase, skip..."
+                value={popover.group.note}
+                onChange={(e) => handleNoteChange(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <button
+              className="stitch-popover-close"
+              onClick={() => setPopover(null)}
+            >
+              Done
+            </button>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

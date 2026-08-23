@@ -21,6 +21,8 @@ type ToolbarProps = {
   handleAddStitch: (count?: number) => void;
   handleAddRow: () => void;
   finished: boolean;
+  editMode: boolean;
+  onToggleEditMode: () => void;
 };
 
 const MAX_STITCH_COUNT = 999;
@@ -39,6 +41,8 @@ export default function Toolbar({
   handleAddStitch,
   handleAddRow,
   finished,
+  editMode,
+  onToggleEditMode,
 }: ToolbarProps) {
   const [count, setCount] = useState("1");
 
@@ -56,8 +60,8 @@ export default function Toolbar({
   return (
     <div className="toolbar">
       <span className="toolbar-section-label">Tools</span>
-      <button disabled title="Coming soon">
-        Select
+      <button onClick={onToggleEditMode} className={editMode ? "active" : undefined}>
+        {editMode ? "Editing" : "Edit"}
       </button>
       <button disabled title="Coming soon">
         Move
