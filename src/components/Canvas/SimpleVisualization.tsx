@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Pattern } from "../../types/Pattern";
 import type { Stitch, StitchType } from "../../types/Stitch";
@@ -23,7 +23,6 @@ type StitchGroup = {
   type: StitchType;
   count: number;
   note: string;
-  /** IDs of all stitches in this group (for bulk updates). */
   ids: number[];
 };
 
@@ -41,25 +40,12 @@ function buildGroups(stitches: Stitch[]): StitchGroup[] {
   return groups;
 }
 
-/** Render the non-edit grouped text. */
-function formatStitches(stitches: Stitch[]): string {
-  const groups = buildGroups(stitches);
-  return groups
-    .map((g) => {
-      const base =
-        g.count > 1
-          ? `${STITCH_ABBREVIATIONS[g.type]} x${g.count}`
-          : STITCH_ABBREVIATIONS[g.type];
-      return g.note ? `${base} [${g.note}]` : base;
-    })
-    .join(", ");
-}
-
 type SimpleVisualizationProps = {
   pattern: Pattern;
   editMode: boolean;
   onStitchTypeChange: (stitchId: number, newType: StitchType) => void;
   onStitchNoteChange: (stitchId: number, note: string) => void;
+  onStitchDelete: (stitchId: number) => void;
 };
 
 const START_LABELS: Record<Pattern["startType"], string> = {
@@ -72,15 +58,33 @@ export default function SimpleVisualization({
   editMode,
   onStitchTypeChange,
   onStitchNoteChange,
+  onStitchDelete,
 }: SimpleVisualizationProps) {
   const [popover, setPopover] = useState<{
     group: StitchGroup;
     anchor: HTMLSpanElement;
   } | null>(null);
 
+  // Track which groups are expanded inline (key = first stitch id of the group)
+  const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
+
+  // Collapse all expanded groups when edit mode is turned off
+  useEffect(() => {
+    if (!editMode) setExpandedGroups(new Set());
+  }, [editMode]);
+
+  function toggleExpand(groupId: number) {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
+      return next;
+    });
+  }
+
   function handleGroupClick(group: StitchGroup, el: HTMLSpanElement) {
     if (!editMode) return;
-    if (popover && popover.group.type === group.type && popover.group.ids[0] === group.ids[0]) {
+    if (popover && popover.group.ids[0] === group.ids[0]) {
       setPopover(null);
     } else {
       setPopover({ group, anchor: el });
@@ -89,24 +93,24 @@ export default function SimpleVisualization({
 
   function handleTypeChange(newType: StitchType) {
     if (!popover) return;
-    // Change every stitch in the group
     for (const id of popover.group.ids) {
       onStitchTypeChange(id, newType);
     }
-    setPopover({
-      ...popover,
-      group: { ...popover.group, type: newType },
-    });
+    setPopover({ ...popover, group: { ...popover.group, type: newType } });
   }
 
   function handleNoteChange(note: string) {
     if (!popover) return;
-    // Store note on the first stitch of the group
     onStitchNoteChange(popover.group.ids[0], note);
-    setPopover({
-      ...popover,
-      group: { ...popover.group, note },
-    });
+    setPopover({ ...popover, group: { ...popover.group, note } });
+  }
+
+  function handleDelete() {
+    if (!popover) return;
+    for (const id of popover.group.ids) {
+      onStitchDelete(id);
+    }
+    setPopover(null);
   }
 
   if (pattern.rows.length === 0) {
@@ -129,32 +133,79 @@ export default function SimpleVisualization({
             <span className="simple-row-label">{row.label}:</span>{" "}
             <span className="simple-row-text">
               {groups.map((g, i) => {
-                const text =
-                  g.count > 1
-                    ? `${STITCH_ABBREVIATIONS[g.type]} x${g.count}`
-                    : STITCH_ABBREVIATIONS[g.type];
+                const isExpanded = expandedGroups.has(g.ids[0]);
                 const isHighlighted =
-                  popover &&
-                  popover.group.type === g.type &&
-                  popover.group.ids[0] === g.ids[0];
+                  popover && popover.group.ids[0] === g.ids[0];
 
                 return (
                   <span key={g.ids[0]} className="simple-group">
                     {i > 0 && <span className="simple-group-sep">{", "}</span>}
-                    {editMode ? (
-                      <span
-                        className={`simple-group-text ${isHighlighted ? "selected" : ""}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleGroupClick(g, e.currentTarget);
-                        }}
-                      >
-                        {text}
+
+                    {isExpanded ? (
+                      /* Expanded: show each stitch individually */
+                      <span className="simple-group-expanded">
+                        {g.ids.map((id, j) => {
+                          const stitch = pattern.rows
+                            .flatMap((r) => r.stitches)
+                            .find((s) => s.id === id);
+                          if (!stitch) return null;
+                          return (
+                            <span key={id}>
+                              {j > 0 && <span className="simple-group-sep">{", "}</span>}
+                              <span
+                                className={`simple-stitch ${editMode ? "editable" : ""}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (editMode) {
+                                    /* clicking an individual stitch opens popover for the whole group */
+                                    const span = e.currentTarget;
+                                    handleGroupClick(g, span);
+                                  }
+                                }}
+                              >
+                                {STITCH_ABBREVIATIONS[stitch.type]}
+                              </span>
+                            </span>
+                          );
+                        })}
+                      </span>
+                    ) : editMode ? (
+                      /* Collapsed in edit mode: clickable group + expand toggle */
+                      <span className="simple-group-edit">
+                        <span
+                          className={`simple-group-text ${isHighlighted ? "selected" : ""}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGroupClick(g, e.currentTarget);
+                          }}
+                        >
+                          {g.count > 1
+                            ? `${STITCH_ABBREVIATIONS[g.type]} x${g.count}`
+                            : STITCH_ABBREVIATIONS[g.type]}
+                        </span>
+                        {g.count > 1 && (
+                          <button
+                            className="simple-expand-btn"
+                            title="Expand group"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleExpand(g.ids[0]);
+                            }}
+                          >
+                            +
+                          </button>
+                        )}
                       </span>
                     ) : (
-                      <span>{text}</span>
+                      /* Read-only */
+                      <span>
+                        {g.count > 1
+                          ? `${STITCH_ABBREVIATIONS[g.type]} x${g.count}`
+                          : STITCH_ABBREVIATIONS[g.type]}
+                      </span>
                     )}
-                    {g.note && (
+
+                    {g.note && !isExpanded && (
                       <span className="simple-stitch-note"> [{g.note}]</span>
                     )}
                   </span>
@@ -202,12 +253,14 @@ export default function SimpleVisualization({
                 autoFocus
               />
             </div>
-            <button
-              className="stitch-popover-close"
-              onClick={() => setPopover(null)}
-            >
-              Done
-            </button>
+            <div className="stitch-popover-actions">
+              <button className="stitch-popover-delete" onClick={handleDelete}>
+                Delete
+              </button>
+              <button className="stitch-popover-close" onClick={() => setPopover(null)}>
+                Done
+              </button>
+            </div>
           </div>,
           document.body
         )}

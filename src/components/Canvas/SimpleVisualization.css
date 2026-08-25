@@ -142,8 +142,30 @@
   box-shadow: 0 0 0 1px #0f766e;
 }
 
+.stitch-popover-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.stitch-popover-delete {
+  padding: 4px 12px;
+  font-size: 12px;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  background: #fef2f2;
+  cursor: pointer;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.stitch-popover-delete:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
 .stitch-popover-close {
-  align-self: flex-end;
   padding: 4px 12px;
   font-size: 12px;
   border: 1px solid #d4d4d8;
@@ -155,4 +177,50 @@
 
 .stitch-popover-close:hover {
   background: #f9fafb;
+}
+
+/* Inline expand */
+
+.simple-group-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.simple-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  border: 1px solid #d4d4d8;
+  border-radius: 3px;
+  background: #fff;
+  color: #71717a;
+  cursor: pointer;
+  padding: 0;
+}
+
+.simple-expand-btn:hover {
+  background: #e0f2fe;
+  border-color: #0ea5e9;
+  color: #0369a1;
+}
+
+.simple-group-expanded {
+  display: inline;
+}
+
+.simple-stitch.editable {
+  cursor: pointer;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+.simple-stitch.editable:hover {
+  background-color: #e0f2fe;
+  color: #0369a1;
 }
